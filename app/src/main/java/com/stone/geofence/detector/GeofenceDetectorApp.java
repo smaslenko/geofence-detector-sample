@@ -26,4 +26,8 @@ public class GeofenceDetectorApp extends Application {
             .repositoryModule(new RepositoryModule())
             .build();
     }
+
+    public RepositoryComponent getRepositoryComponent() {
+        return mRepositoryComponent;
+    }
 }

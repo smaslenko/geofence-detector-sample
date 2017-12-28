@@ -40,10 +40,6 @@ public class GeofenceRepo implements Repository {
         mGeofencingRequestBuilder = geofencingRequestBuilder;
     }
 
-    public void startMonitoring() {
-
-    }
-
     @SuppressLint("MissingPermission")
     public void addGeofence(GeofenceData data) {
         Geofence gf = GeofenceUtil.GeofenceDataToGeofence(data);
@@ -70,5 +66,7 @@ public class GeofenceRepo implements Repository {
                 Log.d(TAG, "Geofences not removed, error: " + e.toString());
             });
     }
+
+
 
 }
