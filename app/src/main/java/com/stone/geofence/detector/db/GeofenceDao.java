@@ -2,6 +2,7 @@ package com.stone.geofence.detector.db;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
@@ -18,8 +19,11 @@ public interface GeofenceDao {
     @Insert(onConflict = REPLACE)
     void saveGeofence(GeofenceData geofenceData);
 
-    @Query("SELECT * FROM GeofenceData WHERE id = :id")
-    LiveData<GeofenceData> loadGeofence(int id);
+    @Delete
+    void deleteGeofence(GeofenceData geofenceData);
+
+    @Query("SELECT * FROM GeofenceData WHERE name = :name")
+    LiveData<GeofenceData> loadGeofence(String name);
 
     @Query("SELECT * FROM GeofenceData")
     LiveData<List<GeofenceData>> loadAll();

@@ -2,6 +2,7 @@ package com.stone.geofence.detector.di.component;
 
 import com.stone.geofence.detector.di.module.AppModule;
 import com.stone.geofence.detector.di.module.RepositoryModule;
+import com.stone.geofence.detector.provider.GeofenceTransitionProviderService;
 import com.stone.geofence.detector.ui.MainActivity;
 
 import javax.inject.Singleton;
@@ -13,5 +14,5 @@ import dagger.Component;
 public interface RepositoryComponent {
 
     void inject(MainActivity activity);
-//    void inject(DeviceFragment deviceFragment);
+    void inject(GeofenceTransitionProviderService service);
 }

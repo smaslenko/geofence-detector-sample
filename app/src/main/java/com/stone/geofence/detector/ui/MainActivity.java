@@ -52,6 +52,7 @@ public class MainActivity extends PermissionsAwareActivity {
         mTextMessage = findViewById(R.id.message);
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        navigation.setSelectedItemId(R.id.navigation_home);
     }
 
     void addGeofence() {
@@ -64,7 +65,6 @@ public class MainActivity extends PermissionsAwareActivity {
         }
 
         GeofenceData gd = new GeofenceData();
-        gd.setId(0);
         gd.setLatitude(49.8407);
         gd.setLongitude(24.0305);
         gd.setRadius(100);

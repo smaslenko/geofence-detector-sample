@@ -2,31 +2,26 @@ package com.stone.geofence.detector.db.model;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 @Entity
 public class GeofenceData {
 
+    @SuppressWarnings("NullableProblems")
+    @NonNull
     @PrimaryKey
-    private int id;
     private String name;
     private double latitude;
     private double longitude;
     private float radius;
     private String wifiId;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
+    @NonNull
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(@NonNull String name) {
         this.name = name;
     }
 

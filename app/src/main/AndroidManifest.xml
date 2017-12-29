@@ -27,7 +27,7 @@
       </intent-filter>
     </activity>
 
-    <service android:name=".service.GeofenceTransitService" />
+    <service android:name=".provider.GeofenceTransitionProviderService" />
   </application>
 
 </manifest>

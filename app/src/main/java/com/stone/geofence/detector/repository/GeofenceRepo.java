@@ -2,15 +2,19 @@ package com.stone.geofence.detector.repository;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
+import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
+import com.stone.geofence.detector.db.GeofenceDao;
 import com.stone.geofence.detector.db.model.GeofenceData;
+import com.stone.geofence.detector.provider.GeofenceTransitionProviderService;
 import com.stone.geofence.detector.util.GeofenceUtil;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,20 +28,35 @@ public class GeofenceRepo implements Repository {
     /**
      * Provides access to the Geofencing API.
      */
-    private GeofencingClient mGeofencingClient;
+    private final GeofencingClient mGeofencingClient;
 
     /**
-     * Used when requesting to add or remove geofences.
+     * Used to attach {@link GeofenceTransitionProviderService} as transitions handler
      */
-    private PendingIntent mGeofencePendingIntent;
+    private final PendingIntent mGeofencePendingIntent;
 
-    private GeofencingRequest.Builder mGeofencingRequestBuilder;
+    /**
+     * Used when requesting to add or remove geofences of interest.
+     */
+    private final GeofencingRequest.Builder mGeofencingRequestBuilder;
+
+    /**
+     * Used to save user entered geofences to DB.
+     */
+    private final GeofenceDao mGeofenceDao;
+
+    private final Executor mExecutor;
+
+    private MutableLiveData<List<FenceStatus>> mFencesStatus;
+    private MutableLiveData<FenceStatus> mFencesErrorStatus;
 
     @Inject
-    GeofenceRepo(GeofencingClient geofencingClient, PendingIntent geofencePendingIntent, GeofencingRequest.Builder geofencingRequestBuilder) {
+    GeofenceRepo(GeofenceDao dao, GeofencingClient geofencingClient, PendingIntent geofencePendingIntent, GeofencingRequest.Builder geofencingRequestBuilder, Executor executor) {
         mGeofencingClient = geofencingClient;
         mGeofencePendingIntent = geofencePendingIntent;
         mGeofencingRequestBuilder = geofencingRequestBuilder;
+        mGeofenceDao = dao;
+        mExecutor = executor;
     }
 
     @SuppressLint("MissingPermission")
@@ -46,7 +65,8 @@ public class GeofenceRepo implements Repository {
         GeofencingRequest request = mGeofencingRequestBuilder.addGeofence(gf).build();
 
         mGeofencingClient.addGeofences(request, mGeofencePendingIntent)
-            .addOnSuccessListener(aVoid -> {
+            .addOnSuccessListener(v -> {
+                saveGeofence(data);
                 Log.d(TAG, "Geofences added");
             })
             .addOnFailureListener(e -> {
@@ -57,9 +77,10 @@ public class GeofenceRepo implements Repository {
     }
 
     public void removeGeofence(GeofenceData data) {
-        List<String> toRemove = Stream.of(data).map(geofence -> String.valueOf(geofence.getId())).collect(Collectors.toList());
+        List<String> toRemove = Stream.of(data).map(GeofenceData::getName).collect(Collectors.toList());
         mGeofencingClient.removeGeofences(toRemove)
-            .addOnSuccessListener(aVoid -> {
+            .addOnSuccessListener(v -> {
+                deleteGeofence(data);
                 Log.d(TAG, "Geofences removed");
             })
             .addOnFailureListener(e -> {
@@ -67,6 +88,34 @@ public class GeofenceRepo implements Repository {
             });
     }
 
+    public void setFencesStatus(List<FenceStatus> fencesStatus) {
+        if (mFencesStatus == null) {
+            mFencesStatus = new MutableLiveData<>();
+        }
+        mFencesStatus.postValue(fencesStatus);
+    }
 
+    public MutableLiveData<List<FenceStatus>> getFencesStatus() {
+        return mFencesStatus;
+    }
+
+    public void setFencesErrorStatus(String errorText) {
+        if(mFencesErrorStatus == null) {
+            mFencesErrorStatus = new MutableLiveData<>();
+        }
+        mFencesErrorStatus.postValue(new FenceStatus(errorText, FenceStatus.State.Error));
+    }
+
+    private void saveGeofence(GeofenceData data) {
+        mExecutor.execute(() -> {
+            mGeofenceDao.saveGeofence(data);
+        });
+    }
+
+    private void deleteGeofence(GeofenceData data) {
+        mExecutor.execute(() -> {
+            mGeofenceDao.deleteGeofence(data);
+        });
+    }
 
 }

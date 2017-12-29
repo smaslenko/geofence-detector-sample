@@ -5,7 +5,7 @@ import android.arch.persistence.room.RoomDatabase;
 
 import com.stone.geofence.detector.db.model.GeofenceData;
 
-@Database(entities = {GeofenceData.class}, version = 1, exportSchema = false)
+@Database(entities = {GeofenceData.class}, version = 2, exportSchema = false)
 public abstract class GeofenceDatabase extends RoomDatabase {
 
     public abstract GeofenceDao getHomeDao();
