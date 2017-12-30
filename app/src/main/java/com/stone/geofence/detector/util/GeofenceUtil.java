@@ -9,11 +9,9 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.stone.geofence.detector.R;
 import com.stone.geofence.detector.db.model.GeofenceData;
-import com.stone.geofence.detector.repository.FenceStatus;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GeofenceUtil {
 
@@ -62,23 +60,6 @@ public class GeofenceUtil {
         String triggeringGeofencesIdsString = TextUtils.join(", ", triggeringGeofencesIdsList);
 
         return geofenceTransitionString + ": " + triggeringGeofencesIdsString;
-    }
-
-    /**
-     * Gets {@link FenceStatus} list from retrieved transition.
-     *
-     * @param geofenceTransition  The ID of the geofence transition.
-     * @param triggeringGeofences The geofence(s) triggered.
-     * @return {@link FenceStatus} list
-     */
-    public static List<FenceStatus> getFenceStatuses(int geofenceTransition, List<Geofence> triggeringGeofences) {
-        final FenceStatus.State state =
-            geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ? FenceStatus.State.In : FenceStatus.State.Out;
-        return triggeringGeofences.stream()
-            .map(geofence -> new FenceStatus(
-                geofence.getRequestId(),
-                state))
-            .collect(Collectors.toList());
     }
 
     /**

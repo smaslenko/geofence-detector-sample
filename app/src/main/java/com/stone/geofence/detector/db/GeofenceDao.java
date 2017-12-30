@@ -15,17 +15,15 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 @Dao
 public interface GeofenceDao {
 
-    //region Thermostats
     @Insert(onConflict = REPLACE)
     void saveGeofence(GeofenceData geofenceData);
 
     @Delete
     void deleteGeofence(GeofenceData geofenceData);
 
-    @Query("SELECT * FROM GeofenceData WHERE name = :name")
-    LiveData<GeofenceData> loadGeofence(String name);
+    @Query("SELECT * FROM GeofenceData WHERE id = :id")
+    LiveData<GeofenceData> loadGeofence(int id);
 
     @Query("SELECT * FROM GeofenceData")
-    LiveData<List<GeofenceData>> loadAll();
-    //endregion
+    List<GeofenceData> loadAll();
 }

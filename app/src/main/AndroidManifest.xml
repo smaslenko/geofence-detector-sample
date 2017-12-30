@@ -5,10 +5,12 @@
     >
 
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
   <application
       android:name=".GeofenceDetectorApp"
       android:allowBackup="true"
+      android:fullBackupContent="@xml/backup_descriptor"
       android:icon="@mipmap/ic_launcher"
       android:label="@string/app_name"
       android:roundIcon="@mipmap/ic_launcher_round"
@@ -27,7 +29,32 @@
       </intent-filter>
     </activity>
 
-    <service android:name=".provider.GeofenceTransitionProviderService" />
+    <service
+        android:name=".receiver.GeofenceTransitionReceiver"
+        android:enabled="true"
+        android:exported="false"
+        />
+
+    <receiver
+        android:name=".receiver.WifiTransitionReceiver"
+        android:enabled="true"
+        android:exported="false"
+        >
+      <intent-filter>
+        <action android:name="android.net.wifi.STATE_CHANGE" />
+        <action android:name="com.stone.geofence.detector.receiver.INITIAL_WIFI_TRANSITION_ACTION" />
+      </intent-filter>
+    </receiver>
+
+    <meta-data
+        android:name="com.google.android.gms.version"
+        android:value="@integer/google_play_services_version"
+        />
+
+    <meta-data
+        android:name="com.google.android.geo.API_KEY"
+        android:value="AIzaSyCts9XjrBdZW2j1ss9BjSTKFTEGB6STf_o"
+        />
   </application>
 
 </manifest>

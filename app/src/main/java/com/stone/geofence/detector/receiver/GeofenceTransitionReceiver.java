@@ -1,4 +1,4 @@
-package com.stone.geofence.detector.provider;
+package com.stone.geofence.detector.receiver;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -8,38 +8,39 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 import com.stone.geofence.detector.GeofenceDetectorApp;
 import com.stone.geofence.detector.R;
-import com.stone.geofence.detector.repository.FenceStatus;
 import com.stone.geofence.detector.repository.GeofenceRepo;
+import com.stone.geofence.detector.repository.data.FenceStatus;
 import com.stone.geofence.detector.util.GeofenceUtil;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-public class GeofenceTransitionProviderService extends IntentService {
+public class GeofenceTransitionReceiver extends IntentService {
 
-    private static final String TAG = "GeofenceTransitionProviderService";
+    private static final String TAG = "GeofenceTransitionReceiver";
 
     @Inject
     GeofenceRepo mGeofenceRepo;
 
-    public GeofenceTransitionProviderService() {
+    public GeofenceTransitionReceiver() {
         super(TAG);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        ((GeofenceDetectorApp) getApplication()).getRepositoryComponent().inject(this);
+        GeofenceDetectorApp.getAppComponent().inject(this);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if (geofencingEvent.hasError()) {
-            String errorMessage = GeofenceUtil.getErrorString(this, geofencingEvent.getErrorCode());
+            int errorCode = geofencingEvent.getErrorCode();
+            String errorMessage = GeofenceUtil.getErrorString(this, errorCode);
             Log.e(TAG, "" + errorMessage);
-            mGeofenceRepo.setFencesErrorStatus(errorMessage);
+            mGeofenceRepo.updateGeoState(FenceStatus.GeoState.Error.setErrorCode(errorCode));
             return;
         }
 
@@ -61,8 +62,9 @@ public class GeofenceTransitionProviderService extends IntentService {
             Log.i(TAG, geofenceTransitionDetails);
 
             // Update Repo
-            List<FenceStatus> statuses = GeofenceUtil.getFenceStatuses(geofenceTransition, triggeringGeofences);
-            mGeofenceRepo.setFencesStatus(statuses);
+            final FenceStatus.GeoState state =
+                geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ? FenceStatus.GeoState.In : FenceStatus.GeoState.Out;
+            mGeofenceRepo.updateGeoState(state);
         } else {
             // Log the error.
             Log.e(TAG, getString(R.string.geofence_transition_invalid_type, geofenceTransition));

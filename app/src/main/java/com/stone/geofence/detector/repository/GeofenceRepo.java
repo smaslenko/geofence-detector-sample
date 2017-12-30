@@ -2,7 +2,6 @@ package com.stone.geofence.detector.repository;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
-import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
@@ -10,19 +9,20 @@ import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.stone.geofence.detector.db.GeofenceDao;
 import com.stone.geofence.detector.db.model.GeofenceData;
-import com.stone.geofence.detector.provider.GeofenceTransitionProviderService;
+import com.stone.geofence.detector.receiver.GeofenceTransitionReceiver;
+import com.stone.geofence.detector.receiver.WifiTransitionReceiver;
+import com.stone.geofence.detector.repository.data.FenceLiveData;
+import com.stone.geofence.detector.repository.data.FenceStatus;
 import com.stone.geofence.detector.util.GeofenceUtil;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class GeofenceRepo implements Repository {
+public class GeofenceRepo {
 
     private static final String TAG = "GeofenceRepo";
     /**
@@ -31,7 +31,7 @@ public class GeofenceRepo implements Repository {
     private final GeofencingClient mGeofencingClient;
 
     /**
-     * Used to attach {@link GeofenceTransitionProviderService} as transitions handler
+     * Used to attach {@link GeofenceTransitionReceiver} as transitions handler
      */
     private final PendingIntent mGeofencePendingIntent;
 
@@ -47,63 +47,57 @@ public class GeofenceRepo implements Repository {
 
     private final Executor mExecutor;
 
-    private MutableLiveData<List<FenceStatus>> mFencesStatus;
-    private MutableLiveData<FenceStatus> mFencesErrorStatus;
+    private final WifiTransitionReceiver.InitialWifiStateProvider mInitialWifiStateProvider;
+
+    private FenceLiveData mFenceLiveData;
 
     @Inject
-    GeofenceRepo(GeofenceDao dao, GeofencingClient geofencingClient, PendingIntent geofencePendingIntent, GeofencingRequest.Builder geofencingRequestBuilder, Executor executor) {
+    GeofenceRepo(GeofenceDao dao,
+                 GeofencingClient geofencingClient,
+                 PendingIntent geofencePendingIntent,
+                 GeofencingRequest.Builder geofencingRequestBuilder,
+                 WifiTransitionReceiver.InitialWifiStateProvider initialWifiStateProvider,
+                 Executor executor) {
         mGeofencingClient = geofencingClient;
         mGeofencePendingIntent = geofencePendingIntent;
         mGeofencingRequestBuilder = geofencingRequestBuilder;
         mGeofenceDao = dao;
+        mInitialWifiStateProvider = initialWifiStateProvider;
         mExecutor = executor;
+    }
+
+    public void init() {
+        mFenceLiveData = new FenceLiveData();
+        mInitialWifiStateProvider.provide();
+        loadGeofencesAndAdd();
     }
 
     @SuppressLint("MissingPermission")
     public void addGeofence(GeofenceData data) {
         Geofence gf = GeofenceUtil.GeofenceDataToGeofence(data);
         GeofencingRequest request = mGeofencingRequestBuilder.addGeofence(gf).build();
-
         mGeofencingClient.addGeofences(request, mGeofencePendingIntent)
             .addOnSuccessListener(v -> {
-                saveGeofence(data);
                 Log.d(TAG, "Geofences added");
             })
             .addOnFailureListener(e -> {
-                // Failed to add geofences
-                // ...
                 Log.d(TAG, "Geofences not added, error: " + e.toString());
             });
+
+        saveGeofence(data);
+        mFenceLiveData.updateName(data.getName());
     }
 
-    public void removeGeofence(GeofenceData data) {
-        List<String> toRemove = Stream.of(data).map(GeofenceData::getName).collect(Collectors.toList());
-        mGeofencingClient.removeGeofences(toRemove)
-            .addOnSuccessListener(v -> {
-                deleteGeofence(data);
-                Log.d(TAG, "Geofences removed");
-            })
-            .addOnFailureListener(e -> {
-                Log.d(TAG, "Geofences not removed, error: " + e.toString());
-            });
+    public void updateGeoState(FenceStatus.GeoState state) {
+        mFenceLiveData.updateGeoState(state);
     }
 
-    public void setFencesStatus(List<FenceStatus> fencesStatus) {
-        if (mFencesStatus == null) {
-            mFencesStatus = new MutableLiveData<>();
-        }
-        mFencesStatus.postValue(fencesStatus);
+    public void updateWifiState(String wifiName, FenceStatus.WifiState state) {
+        mFenceLiveData.updateWifiState(wifiName, state);
     }
 
-    public MutableLiveData<List<FenceStatus>> getFencesStatus() {
-        return mFencesStatus;
-    }
-
-    public void setFencesErrorStatus(String errorText) {
-        if(mFencesErrorStatus == null) {
-            mFencesErrorStatus = new MutableLiveData<>();
-        }
-        mFencesErrorStatus.postValue(new FenceStatus(errorText, FenceStatus.State.Error));
+    public FenceLiveData getFenceLiveData() {
+        return mFenceLiveData;
     }
 
     private void saveGeofence(GeofenceData data) {
@@ -112,10 +106,12 @@ public class GeofenceRepo implements Repository {
         });
     }
 
-    private void deleteGeofence(GeofenceData data) {
+    private void loadGeofencesAndAdd() {
         mExecutor.execute(() -> {
-            mGeofenceDao.deleteGeofence(data);
+            List<GeofenceData> list = mGeofenceDao.loadAll();
+            for (GeofenceData gd : list) {
+                addGeofence(gd);
+            }
         });
     }
-
 }

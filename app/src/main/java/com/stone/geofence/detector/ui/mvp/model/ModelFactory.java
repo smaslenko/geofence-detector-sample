@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stone.geofence.detector.ui.viewmodel;
+package com.stone.geofence.detector.ui.mvp.model;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
@@ -27,11 +27,11 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 
 @Singleton
-public class ViewModelFactory implements ViewModelProvider.Factory {
+public class ModelFactory implements ViewModelProvider.Factory {
     private final Map<Class<? extends ViewModel>, Provider<ViewModel>> creators;
 
     @Inject
-    public ViewModelFactory(Map<Class<? extends ViewModel>, Provider<ViewModel>> creators) {
+    public ModelFactory(Map<Class<? extends ViewModel>, Provider<ViewModel>> creators) {
         this.creators = creators;
     }
 

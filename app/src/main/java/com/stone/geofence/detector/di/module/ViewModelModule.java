@@ -1,19 +1,23 @@
 package com.stone.geofence.detector.di.module;
 
-import dagger.Module;
+import android.arch.lifecycle.ViewModel;
+import android.arch.lifecycle.ViewModelProvider;
 
+import com.stone.geofence.detector.ui.mvp.model.MainModel;
+import com.stone.geofence.detector.ui.mvp.model.ModelFactory;
+
+import dagger.Binds;
+import dagger.Module;
+import dagger.multibindings.IntoMap;
+
+@SuppressWarnings("WeakerAccess")
 @Module
 public abstract class ViewModelModule {
-//    @Binds
-//    @IntoMap
-//    @ViewModelKey(HomeViewModel.class)
-//    abstract ViewModel bindHomeViewModel(HomeViewModel homeViewModel);
-//
-//    @Binds
-//    @IntoMap
-//    @ViewModelKey(DeviceViewModel.class)
-//    abstract ViewModel bindDeviceViewModel(DeviceViewModel deviceViewModel);
-//
-//    @Binds
-//    abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
+    @Binds
+    @IntoMap
+    @ViewModelKey(MainModel.class)
+    abstract ViewModel bindHomeViewModel(MainModel homeViewModel);
+
+    @Binds
+    abstract ViewModelProvider.Factory bindViewModelFactory(ModelFactory factory);
 }

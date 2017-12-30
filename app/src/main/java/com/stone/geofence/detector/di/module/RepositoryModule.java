@@ -10,7 +10,7 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.stone.geofence.detector.db.GeofenceDao;
 import com.stone.geofence.detector.db.GeofenceDatabase;
-import com.stone.geofence.detector.provider.GeofenceTransitionProviderService;
+import com.stone.geofence.detector.receiver.GeofenceTransitionReceiver;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -52,7 +52,7 @@ public class RepositoryModule {
     @Singleton
     @Provides
     PendingIntent provideGeofencePendingIntent(Application application) {
-        Intent intent = new Intent(application, GeofenceTransitionProviderService.class);
+        Intent intent = new Intent(application, GeofenceTransitionReceiver.class);
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
         // addGeofences() and removeGeofences().
         return PendingIntent.getService(application, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
