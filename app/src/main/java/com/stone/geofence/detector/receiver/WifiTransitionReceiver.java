@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.SupplicantState;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
@@ -66,14 +64,7 @@ public class WifiTransitionReceiver extends BroadcastReceiver {
         }
 
         public void provide() {
-            WifiManager wifiManager = WifiUtil.getWifiManager(application);
-            boolean connected = false;
-            if (wifiManager != null) {
-                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                if (wifiInfo.getSupplicantState() == SupplicantState.COMPLETED) {
-                    connected = true;
-                }
-            }
+            boolean connected = WifiUtil.isConnected(application);
             Intent intent = new Intent(INITIAL_WIFI_TRANSITION_ACTION);
             intent.putExtra(EXTRA_KEY_CONNECTED, connected);
             application.getApplicationContext().sendBroadcast(intent);

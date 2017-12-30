@@ -1,5 +1,6 @@
 package com.stone.geofence.detector.util;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.TextUtils;
@@ -7,6 +8,9 @@ import android.text.TextUtils;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.stone.geofence.detector.R;
 import com.stone.geofence.detector.db.model.GeofenceData;
 
@@ -26,7 +30,7 @@ public class GeofenceUtil {
         return new Geofence.Builder()
             // Set the request ID of the geofence. This is a string to identify this
             // geofence.
-            .setRequestId(String.valueOf(data.getName()))
+            .setRequestId("" + data.getId())
 
             .setCircularRegion(
                 data.getLatitude(),
@@ -36,6 +40,10 @@ public class GeofenceUtil {
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
             .build();
+    }
+
+    public static void removeGeofenceFromClient(GeofencingClient client, PendingIntent data, OnSuccessListener<Void> success, OnFailureListener failure) {
+        client.removeGeofences(data).addOnSuccessListener(success).addOnFailureListener(failure);
     }
 
     /**
@@ -54,9 +62,10 @@ public class GeofenceUtil {
 
         // Get the Ids of each geofence that was triggered.
         ArrayList<String> triggeringGeofencesIdsList = new ArrayList<>();
-        for (Geofence geofence : triggeringGeofences) {
-            triggeringGeofencesIdsList.add(geofence.getRequestId());
-        }
+        if (triggeringGeofences != null)
+            for (Geofence geofence : triggeringGeofences) {
+                triggeringGeofencesIdsList.add(geofence.getRequestId());
+            }
         String triggeringGeofencesIdsString = TextUtils.join(", ", triggeringGeofencesIdsList);
 
         return geofenceTransitionString + ": " + triggeringGeofencesIdsString;
@@ -68,7 +77,7 @@ public class GeofenceUtil {
      * @param transitionType A transition type constant defined in Geofence
      * @return A String indicating the type of transition
      */
-    public static String getTransitionString(Context context, int transitionType) {
+    private static String getTransitionString(Context context, int transitionType) {
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 return context.getString(R.string.geofence_transition_entered);

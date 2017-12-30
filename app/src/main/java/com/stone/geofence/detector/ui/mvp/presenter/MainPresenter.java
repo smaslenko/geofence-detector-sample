@@ -15,6 +15,27 @@ public class MainPresenter extends BasePresenter<MainView, MainModel> implements
     }
 
     @Override
+    public void subscribe() {
+        model().subscribeStoredData().observe(view.lifecycleOwner(), geofenceData -> {
+            if (geofenceData != null) {
+                view.updateLatLongViews(
+                    String.valueOf(geofenceData.getLatitude()),
+                    String.valueOf(geofenceData.getLongitude()));
+                view.updateRadiusView(String.valueOf(geofenceData.getRadius()));
+                view.updateWifiView(geofenceData.getName());
+            }
+        });
+        model().subscribeGeofence().observe(view.lifecycleOwner(), fenceStatus -> {
+            String status = OUTSIDE;
+            if (fenceStatus != null) {
+                boolean connected = fenceStatus.getGeoState() == FenceStatus.GeoState.In || fenceStatus.getWifiState() == FenceStatus.WifiState.Connected;
+                status = connected ? INSIDE : OUTSIDE;
+            }
+            view.updateGeofenceStatus(status);
+        });
+    }
+
+    @Override
     public void setGeofenceValues(String name, double latitude, double longitude, float radius) {
         GeofenceData data = new GeofenceData();
         data.setName(name);
@@ -23,14 +44,5 @@ public class MainPresenter extends BasePresenter<MainView, MainModel> implements
         data.setRadius(radius);
 
         model().addGeofence(data);
-
-        model().subscribeGeofence().observe(view.lifecycleOwner(), fenceStatus -> {
-            if (fenceStatus != null) {
-                String text = String.format("%1$s, %2$s, %3$s", fenceStatus.getFenceName(), fenceStatus.getGeoState(), fenceStatus.getWifiState());
-                boolean connected = fenceStatus.getGeoState() == FenceStatus.GeoState.In || fenceStatus.getWifiState() == FenceStatus.WifiState.Connected;
-                String statusStr = connected ? INSIDE : OUTSIDE;
-                view.updateGeofenceStatus(fenceStatus.getFenceName(), statusStr);
-            }
-        });
     }
 }

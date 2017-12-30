@@ -21,8 +21,8 @@ public interface GeofenceDao {
     @Delete
     void deleteGeofence(GeofenceData geofenceData);
 
-    @Query("SELECT * FROM GeofenceData WHERE id = :id")
-    LiveData<GeofenceData> loadGeofence(int id);
+    @Query("SELECT * FROM GeofenceData WHERE name = :name")
+    LiveData<GeofenceData> loadGeofence(int name);
 
     @Query("SELECT * FROM GeofenceData")
     List<GeofenceData> loadAll();

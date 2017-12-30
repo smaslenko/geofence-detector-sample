@@ -1,5 +1,7 @@
 package com.stone.geofence.detector.ui.mvp.model;
 
+import android.arch.lifecycle.LiveData;
+
 import com.stone.geofence.detector.db.model.GeofenceData;
 import com.stone.geofence.detector.repository.data.FenceLiveData;
 
@@ -21,5 +23,8 @@ public class MainModel extends BaseModel {
 
     public FenceLiveData subscribeGeofence() {
         return mGeofenceRepo.getFenceLiveData();
+    }
+    public LiveData<GeofenceData> subscribeStoredData() {
+        return mGeofenceRepo.getStoredData();
     }
 }

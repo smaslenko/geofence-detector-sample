@@ -19,7 +19,7 @@ public class PermissionsUtil {
 
     private static final String TAG = "PermissionsUtil";
 
-    private static final String[] LOCATION_PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION};
+    private static final String[] LOCATION_PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
     public static final int REQUEST_PERMISSIONS_REQUEST_CODE = 39;
 
@@ -38,7 +38,9 @@ public class PermissionsUtil {
     public static void requestPermissions(Activity activity) {
         boolean shouldProvideRationale =
             ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                Manifest.permission.ACCESS_FINE_LOCATION);
+                Manifest.permission.ACCESS_FINE_LOCATION) ||
+                ActivityCompat.shouldShowRequestPermissionRationale(activity,
+                    Manifest.permission.ACCESS_COARSE_LOCATION);
 
         // Provide an additional rationale to the user. This would happen if the user denied the
         // request previously, but didn't check the "Don't ask again" checkbox.

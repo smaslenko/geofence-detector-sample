@@ -35,6 +35,16 @@ public abstract class PermissionsAwareActivity extends AppCompatActivity {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
+    protected boolean checkPermissionsAndRequest() {
+        if (!PermissionsUtil.checkPermissions(this)) {
+            showToast(getString(R.string.insufficient_permissions));
+            mPendingGeofenceTask = GeofenceUtil.PendingGeofenceTask.ADD;
+            PermissionsUtil.requestPermissions(this);
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Callback received when a permissions request has been completed.
      */

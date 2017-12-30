@@ -29,4 +29,16 @@
   <string name="geofence_transition_exited">Exited</string>
   <string name="unknown_geofence_transition">Unknown Transition</string>
 
+
+  <string name="map_title">Map</string>
+  <string name="save_title">Save</string>
+  <string name="status_title">Status:</string>
+  <string name="latitude_hint">Latitude</string>
+  <string name="longitude_hint">Longitude</string>
+  <string name="radius_hint">Radius</string>
+  <string name="wifi_hint">SSID</string>
+
+
+
+
 </resources>

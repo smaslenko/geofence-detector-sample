@@ -1,30 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="@dimen/activity_horizontal_margin"
     tools:context="com.stone.geofence.detector.ui.MainActivity"
     >
 
-  <TextView
-      android:id="@+id/message"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_margin="@dimen/activity_horizontal_margin"
-      android:text="@string/title_home"
-      />
-
-  <android.support.design.widget.BottomNavigationView
-      android:id="@+id/navigation"
+  <LinearLayout
+      android:id="@+id/enterLayout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginRight="0dp"
-      android:layout_marginLeft="0dp"
-      android:background="?android:attr/windowBackground"
+      android:layout_marginBottom="@dimen/activity_vertical_margin"
+      android:orientation="vertical"
+      >
+
+    <EditText
+        android:id="@+id/latitudeText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/latitude_hint"
+        android:inputType="numberDecimal"
+        />
+
+    <EditText
+        android:id="@+id/longitudeText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/longitude_hint"
+        android:inputType="numberDecimal"
+        />
+    <EditText
+        android:id="@+id/radiusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/radius_hint"
+        android:inputType="numberDecimal"
+        />
+
+    <EditText
+        android:id="@+id/wifiNameText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/wifi_hint"
+        />
+
+    <Button
+        android:id="@+id/mapButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="@string/map_title"
+        />
+
+  </LinearLayout>
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/enterLayout"
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      >
+
+    <TextView
+        style="?android:textAppearanceLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/status_title"
+        android:textColor="@android:color/darker_gray"
+        />
+
+    <TextView
+        android:id="@+id/statusText"
+        style="?android:textAppearanceLarge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:gravity="center"
+        />
+
+  </LinearLayout>
+
+  <Button
+      android:id="@+id/saveButton"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
       android:layout_alignParentBottom="true"
-      app:menu="@menu/navigation"
+      android:text="@string/save_title"
       />
 
 </RelativeLayout>
